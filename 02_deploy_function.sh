@@ -82,7 +82,7 @@ sleep 5
 
 # 4. Zip Function
 echo "Zipping function code..."
-zip function.zip lambda_function.py > /dev/null
+zip function.zip index.mjs package.json > /dev/null
 
 # 5. Create or Update Lambda (With Wait Loop)
 echo "Deploying Lambda function..."
@@ -101,7 +101,7 @@ if [ $? -eq 0 ]; then
     aws lambda update-function-configuration \
         --function-name "$FUNC_NAME" \
         --layers "$LAYER_ARN" \
-        --runtime python3.11 > /dev/null
+        --runtime nodejs24.x > /dev/null
 
     wait_for_update "$FUNC_NAME"
 else
@@ -111,9 +111,9 @@ else
     while true; do
         aws lambda create-function \
             --function-name "$FUNC_NAME" \
-            --runtime python3.11 \
+            --runtime nodejs24.x \
             --role "$ROLE_ARN" \
-            --handler lambda_function.lambda_handler \
+            --handler index.handler \
             --zip-file fileb://function.zip \
             --layers "$LAYER_ARN" \
             --timeout 30 \

@@ -2,7 +2,7 @@
 
 # Configuration
 LAYER_NAME=$1
-PYTHON_RUNTIME="python3.11"
+NODE_RUNTIME="nodejs24.x"
 
 # Function to prompt for input if not provided
 get_input() {
@@ -17,29 +17,31 @@ get_input() {
 }
 
 # 1. Get Layer Name
-LAYER_NAME=$(get_input "Enter desired Layer Name (e.g., pypdf-layer)" "$LAYER_NAME")
+LAYER_NAME=$(get_input "Enter desired Layer Name (e.g., pdf-lib-layer)" "$LAYER_NAME")
 
 echo "--- Building Lambda Layer: $LAYER_NAME ---"
 
 # 2. Prepare Directory Structure
 echo "Cleaning up old build artifacts..."
-rm -rf python pypdf_layer.zip
-mkdir python
+rm -rf nodejs pdf_lib_layer.zip
+mkdir nodejs
 
-# 3. Install pypdf
-echo "Installing pypdf..."
-pip install pypdf -t python/ --quiet
+# 3. Install dependencies
+echo "Installing dependencies..."
+# Copy package.json to nodejs/ so npm installs there
+cp package.json nodejs/
+npm install --prefix nodejs --omit=dev --quiet
 
 # 4. Zip the layer
 echo "Zipping layer..."
-zip -r pypdf_layer.zip python > /dev/null
+zip -r pdf_lib_layer.zip nodejs > /dev/null
 
 # 5. Publish Layer to AWS
 echo "Publishing layer to AWS..."
 LAYER_VERSION_ARN=$(aws lambda publish-layer-version \
     --layer-name "$LAYER_NAME" \
-    --zip-file fileb://pypdf_layer.zip \
-    --compatible-runtimes $PYTHON_RUNTIME \
+    --zip-file fileb://pdf_lib_layer.zip \
+    --compatible-runtimes $NODE_RUNTIME \
     --output text \
     --query 'LayerVersionArn')
 
@@ -53,4 +55,4 @@ else
 fi
 
 # Cleanup
-rm -rf python pypdf_layer.zip
+rm -rf nodejs pdf_lib_layer.zip

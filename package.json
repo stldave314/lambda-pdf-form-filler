@@ -1,0 +1,11 @@
+{
+    "name": "lambda-pdf-form-filler",
+    "version": "1.0.0",
+    "description": "AWS Lambda function to fill PDF forms",
+    "type": "module",
+    "main": "index.mjs",
+    "dependencies": {
+        "@aws-sdk/client-s3": "^3.0.0",
+        "pdf-lib": "^1.17.1"
+    }
+}
